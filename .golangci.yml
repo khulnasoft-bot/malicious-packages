@@ -1,96 +1,112 @@
----
 version: "2"
+
 run:
-  concurrency: 6
-  timeout: 10m
+  concurrency: 4          # safer for CI runners
+  timeout: 5m             # 10m is excessive for most pipelines
+  tests: true
+
 issues:
-  # Maximum issues count per one linter.
-  # Set to 0 to disable.
-  # Default: 50
   max-issues-per-linter: 0
-  # Maximum count of issues with the same text.
-  # Set to 0 to disable.
-  # Default: 3
   max-same-issues: 0
-  # Exclude previously existing issues from the report
-  # new: true
-  # new-from-rev: HEAD
+
 linters:
   disable-all: true
   enable:
-    - asciicheck
-    - bodyclose  # Temporarily disabled.
-    - copyloopvar
-    #- depguard
-    - dogsled
-    #- errcheck  # Temporarily disabled.
+    # Core correctness
+    - govet
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - unused
+
+    # Error handling
     - errorlint
-    - exhaustive
-    - gci
-    #- gochecknoinits  # Temporarily disabled.
-    #- gocognit  # Temporarily disabled.
-    - goconst
+    - errcheck
+
+    # Code quality
     - gocritic
     - gocyclo
-    - godot
-    - godox
-    #- goerr113  # Temporarily disabled.
+    - unparam
+    - unconvert
+    - predeclared
+
+    # Style / formatting
     - gofmt
     - gofumpt
-    - goheader
     - goimports
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    #- lll  # Temporarily disabled.
-    - makezero
-    - misspell
-    - nakedret
-    - nestif
-    - noctx
-    - nolintlint
-    - predeclared
-    - staticcheck
-    - stylecheck
-    - thelper
-    - tparallel
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
     - whitespace
-    #- wrapcheck  # Temporarily disabled.
+    - godot
+    - misspell
+
+    # Maintainability
+    - nestif
+    - nakedret
+    - dogsled
+    - copyloopvar
+
+    # Security
+    - gosec
+
+    # Imports / modules
+    - gci
+    - gomodguard
+
+    # Misc useful
+    - nolintlint
+    - makezero
+    - noctx
+    - bodyclose
+    - tparallel
+    - thelper
+
+    # Optional but useful
+    - asciicheck
+    - goconst
+    - goprintffuncname
+    - stylecheck
+
+  # ❌ REMOVED (v2 incompatible)
+  # - typecheck
+
 linters-settings:
   errcheck:
     check-type-assertions: true
     check-blank: true
+
   exhaustive:
-    # https://golangci-lint.run/usage/linters/#exhaustive
     default-signifies-exhaustive: true
-  godot:
-    exclude:
-      - "^ -- "
+
   govet:
     enable-all: true
     disable:
-      - fieldalignment
-      - shadow
+      - fieldalignment   # noisy
+      - shadow           # often too strict
+
+  godot:
+    exclude:
+      - "^ -- "
+
   godox:
     keywords:
       - BUG
       - FIXME
       - HACK
+
   gci:
     sections:
       - standard
       - default
       - prefix(github.com/khulnasoft-lab/malicious-packages)
+
+  gocyclo:
+    min-complexity: 15   # avoid noise
+
+  nestif:
+    min-complexity: 4
+
   gocritic:
     enabled-checks:
-      # Diagnostic
+      # Diagnostics
       - appendAssign
       - badCond
       - caseOrder
@@ -108,7 +124,6 @@ linters-settings:
 
       # Performance
       - appendCombine
-      #- hugeParam  # Crashing.
       - rangeExprCopy
       - rangeValCopy
 
