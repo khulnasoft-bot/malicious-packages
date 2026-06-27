@@ -19,13 +19,14 @@ jobs:
 
     steps:
     - name: Checkout self
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Checkout ossf/osv-schema
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         repository: ossf/osv-schema
         ref: ed713ef6511fa4113c89e25ea5e3da5291c6f05d
         path: osv-schema
@@ -51,8 +52,8 @@ jobs:
       run: |
         cd osv-schema/tools/ghsa
         mkdir OUT
-        TIMESINCE=`python3 -c 'import datetime; dt=datetime.datetime.now(datetime.UTC)-datetime.timedelta(hours=48); print(dt.isoformat())'`
-        pipenv run python dump_ghsa.py --token "${{ github.token }}" --query "classifications: [MALWARE] updatedSince: \"$TIMESINCE\"" OUT
+        TIMESINCE=$(python3 -c "import datetime; print((datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=48)).isoformat())")
+        pipenv run python dump_ghsa.py --token "${{ secrets.GITHUB_TOKEN }}" --query "classifications: [MALWARE] updatedSince: \"$TIMESINCE\"" OUT
 
     - name: Convert GHSA to OSV
       run: |
